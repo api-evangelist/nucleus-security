@@ -1,0 +1,193 @@
+name: Nucleus Security Standards Conformance
+description: >-
+  Cross-cutting and domain-standard conformance for Nucleus Security, asserted only where
+  a contract, a probed document, or a named certification supports it. Nucleus is a
+  vulnerability and exposure management platform, so its domain standards are the
+  vulnerability-identification and scoring schemes - and those appear as first-class
+  fields in its own live public contract, not merely as marketing prose.
+generated: '2026-08-26'
+method: searched
+source: >-
+  Probed /.well-known/ documents on nucleussec.com, the live response of
+  GET https://nucleussec.com/wp-json/nucleussec/v1/vulnerabilities/list,
+  https://trust.nucleussec.com/, and the Nucleus help center, 2026-08-26.
+
+conformance:
+- id: oauth2
+  conforms: true
+  evidence: >-
+    RFC 6749/OAuth 2.1 authorization-code flow with mandatory PKCE (S256) advertised at
+    https://nucleussec.com/.well-known/oauth-authorization-server (HTTP 200, probed
+    2026-08-26). Grants: authorization_code, refresh_token. Public clients
+    (token_endpoint_auth_methods_supported ["none"]).
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  evidence: >-
+    https://nucleussec.com/.well-known/oauth-authorization-server returns HTTP 200 with a
+    complete metadata document including issuer, authorization_endpoint, token_endpoint,
+    revocation_endpoint, code_challenge_methods_supported and scopes_supported.
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  evidence: >-
+    https://nucleussec.com/.well-known/oauth-protected-resource returns HTTP 200 naming
+    resource https://nucleussec.com/wp-json/mcp/mcp-oauth-server, authorization_servers
+    ["https://nucleussec.com"], bearer_methods_supported ["header"], scopes_supported ["mcp"].
+- id: rfc9116
+  name: security.txt
+  conforms: true
+  evidence: >-
+    https://nucleussec.com/.well-known/security.txt returns HTTP 200 with Contact, Policy,
+    Preferred-Languages, Canonical and a non-expired Expires field (2029-08-19).
+- id: mcp
+  name: Model Context Protocol
+  conforms: true
+  evidence: >-
+    Two remote MCP servers. The product server is documented at
+    https://help.nucleussec.com/docs/nucleus-mcp-server.md with a stated URL format and
+    OAuth authorization. The website server responds to a JSON-RPC tools/list POST with a
+    protocol-correct HTTP 401 mcp_unauthorized and is advertised via RFC 9728.
+- id: oidc
+  conforms: false
+  evidence: >-
+    https://nucleussec.com/.well-known/openid-configuration returns HTTP 404. No OpenID
+    Connect discovery document on any probed host.
+- id: saml2
+  name: SAML 2.0
+  conforms: true
+  evidence: >-
+    Console SSO via Generic SAML, Okta and Microsoft Entra ID, with SSO group-to-role
+    mapping. Documented at https://help.nucleussec.com/docs/sso.
+- id: scim
+  conforms: false
+  evidence: No SCIM schema URN, endpoint, or provisioning documentation found in the public help center.
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    The public API returns the WordPress REST error envelope
+    {"code","message","data":{"status"}} with content-type application/json, not
+    application/problem+json. Observed 2026-08-26.
+- id: pagination
+  conforms: true
+  evidence: >-
+    GET /vulnerabilities/list accepts page and per_page and returns total, page, per_page
+    and total_pages in the response envelope. Offset/page-number style. Observed live.
+- id: idempotency
+  conforms: false
+  evidence: >-
+    No idempotency key header is documented on any Nucleus surface, and none is present on
+    the public API. The public API is read-only; the tenant platform API has documented
+    write operations (finding processing rules) with no published idempotency mechanism.
+- id: odata
+  conforms: false
+  evidence: No $metadata surface or OData query conventions found.
+- id: json:api
+  conforms: false
+  evidence: Response envelopes are bespoke ({success,data,total,page,per_page,total_pages}), not JSON:API.
+- id: fedramp
+  conforms: true
+  evidence: >-
+    FedRAMP Moderate authorization listed for NucleusGov on https://trust.nucleussec.com/
+    (HTTP 200, fetched 2026-08-26).
+- id: soc2
+  name: SOC 2 Type II
+  conforms: true
+  evidence: >-
+    2026 Nucleus Security SOC 2 Type II report listed as an available document on
+    https://trust.nucleussec.com/, covering Nucleus and NucleusGov.
+- id: nist-csf
+  conforms: true
+  evidence: NIST Cybersecurity Framework badge displayed on https://trust.nucleussec.com/.
+- id: cisa-secure-by-design
+  conforms: true
+  evidence: CISA Secure by Design Pledge badge displayed on https://trust.nucleussec.com/.
+- id: iso27001
+  conforms: false
+  evidence: Not listed among the certifications on the trust center as of 2026-08-26.
+- id: pci-dss
+  conforms: false
+  evidence: Not listed on the trust center.
+- id: hipaa
+  conforms: false
+  evidence: Not listed on the trust center.
+
+domain_standards:
+  market: Vulnerability and exposure management (CTEM / VM / exposure assessment)
+  note: >-
+    REWARD-ONLY assessment. Each entry below points at an exact location in a live Nucleus
+    contract, not at a marketing claim. The public vulnerability intelligence API is the
+    evidence surface: its response objects carry the identifier and scoring schemes of this
+    market as named, first-class fields.
+  contract: openapi/nucleus-security-vulnerability-intelligence-openapi.yml
+  standards:
+  - id: cve
+    name: CVE (MITRE Common Vulnerabilities and Exposures)
+    conforms: true
+    role: identifier scheme
+    evidence: >-
+      Response field `cve_id` carries canonical CVE identifiers (e.g. CVE-2025-67038) and
+      `cve_link` resolves each to its NVD detail page at nvd.nist.gov. Both fields observed
+      live on GET /wp-json/nucleussec/v1/vulnerabilities/list, 2026-08-26. Schema:
+      components.schemas.Vulnerability.properties.cve_id.
+  - id: cvss-v3
+    name: CVSS v3.x (FIRST Common Vulnerability Scoring System)
+    conforms: true
+    role: severity scoring
+    evidence: >-
+      Response field `cvssv3_base` carries CVSS v3.x base scores (e.g. "9.8").
+      Schema: components.schemas.Vulnerability.properties.cvssv3_base.
+  - id: cvss-v4
+    name: CVSS v4.0
+    conforms: true
+    role: severity scoring
+    evidence: >-
+      Response field `cvssv4_base` is declared and populated for records that carry a v4
+      score. Schema: components.schemas.Vulnerability.properties.cvssv4_base.
+  - id: epss
+    name: EPSS (FIRST Exploit Prediction Scoring System)
+    conforms: true
+    role: exploitation probability
+    evidence: >-
+      Response field `epss_score` carries EPSS probabilities as decimal strings (e.g.
+      "0.02105"). Schema: components.schemas.Vulnerability.properties.epss_score. Also
+      documented at https://help.nucleussec.com/docs/epss-score.
+  - id: cisa-kev
+    name: CISA Known Exploited Vulnerabilities catalog (BOD 22-01)
+    conforms: true
+    role: authoritative exploitation catalog
+    evidence: >-
+      Response field `cisa_notes` carries CISA-published advisory notes/URLs per record.
+      The platform documents KEV handling at
+      https://help.nucleussec.com/docs/cisa-bod-22-01 and ships a KEV-driven metric family
+      in the Metrics API Reference.
+  - id: nvd
+    name: NVD (NIST National Vulnerability Database)
+    conforms: true
+    role: reference database
+    evidence: >-
+      `cve_link` values are NVD canonical URLs (https://nvd.nist.gov/vuln/detail/CVE-...),
+      observed live.
+  - id: sbom
+    name: SBOM (CycloneDX / SPDX)
+    conforms: false
+    evidence: >-
+      No SBOM ingestion or emission format is documented in the public help center, and no
+      SBOM fields appear in any public contract. Nucleus publishes commentary on SBOM but
+      does not declare a machine-readable SBOM surface publicly.
+  - id: vex
+    name: VEX / CSAF
+    conforms: false
+    evidence: No VEX or CSAF document format is declared in any public Nucleus contract or help-center page.
+  - id: ssvc
+    name: SSVC (Stakeholder-Specific Vulnerability Categorization)
+    conforms: false
+    evidence: Not named in the public contract or help center; Nucleus uses its own Nucleus Threat Rating instead.
+  proprietary_signals:
+    note: >-
+      Alongside the open standards above, the contract exposes Nucleus Insights' own
+      exploitation flags - `nucleus_exploited_by_malware`,
+      `nucleus_public_exploit_available`, `nucleus_impacts_ot` - plus third-party feeds
+      `greynoise_tags`, `shadowserver_30d_avg` and `vulncheck_xdb_entries`. These are
+      vendor-specific and are recorded as differentiators, not as standards conformance.

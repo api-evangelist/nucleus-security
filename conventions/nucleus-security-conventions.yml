@@ -1,0 +1,193 @@
+name: Nucleus Security API Conventions
+description: >-
+  Cross-cutting runtime semantics across the three Nucleus Security API surfaces: the
+  authenticated tenant platform REST API, the two remote MCP servers, and the public
+  vulnerability intelligence API. Derived from the one publicly readable contract and from
+  the endpoints and behaviours the help center states verbatim.
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://help.nucleussec.com/docs/api-access.md, data-export.md, metrics-api-reference.md,
+  finding-processing-rules-api.md, external-issue-linking.md, nucleus-mcp-server.md, plus
+  live probes of https://nucleussec.com/wp-json/nucleussec/v1/, 2026-08-26.
+
+authentication:
+  style: api-key-header
+  header: x-apikey
+  surfaces:
+    platform_api: apiKey header `x-apikey`
+    mcp: OAuth 2.1 authorization-code + PKCE (S256)
+    public_vuln_api: none
+  detail: authentication/nucleus-security-authentication.yml
+
+base_urls:
+  platform_api: https://[instance-name].nucleussec.com/nucleus/api
+  mcp: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
+  public_vuln_api: https://nucleussec.com/wp-json/nucleussec/v1
+  templating_note: >-
+    Both product surfaces are TEMPLATED per tenant - the instance name is the customer's
+    own subdomain. This is correct and complete, not a missing base URL: a consumer
+    substitutes their instance name. There is no shared multi-tenant host.
+
+resource_model:
+  root: project
+  note: >-
+    Every documented platform operation is scoped under /projects/{project_id}. A project
+    is the top-level tenancy and permission boundary; roles are assigned per project and
+    narrowed further by Asset Group Access Control.
+
+pagination:
+  platform_api:
+    style: unknown
+    note: Not documented publicly; the Swagger definition that would declare it is behind the console login.
+  public_vuln_api:
+    style: page-number
+    request_params:
+      page: 1-based page number, default 1
+      per_page: records per page, default 25
+    response_fields:
+      total: total matching records
+      page: current page
+      per_page: page size
+      total_pages: total page count
+    sorting:
+      sort_by: field name, default date_added
+      sort_dir: ASC or DESC, default DESC
+    evidence: >-
+      Parameter names and defaults transcribed from the provider's route descriptor at
+      https://nucleussec.com/wp-json/nucleussec/v1; response fields observed live 2026-08-26.
+
+filtering:
+  public_vuln_api:
+    search: free-text `search` parameter across the record set, default empty
+  platform_api:
+    query_language: NQL (Nucleus Query Language)
+    note: >-
+      NQL is the platform's own query language over findings, assets and related datasets.
+      Its syntax reference is exposed to AI clients as an MCP tool (NQL Reference) and its
+      dataset catalogue as another (NQL Metadata). No public REST endpoint for NQL
+      execution is documented, and the syntax reference itself is not published on any
+      public page.
+    findings_search: 'POST /api/projects/{project_id}/findings/search'
+
+async_operations:
+  present: true
+  pattern: job-polling
+  detail: >-
+    Long-running work returns a job identifier polled at
+    GET /api/projects/{project_id}/jobs/{job_id}. Bulk data export is scheduled rather than
+    on-demand: asset data refreshes daily and finding/ticketing data weekly, files expire
+    after 7 days, and files larger than 16 MB are automatically split into chunks.
+  endpoints:
+  - 'GET /api/projects/{project_id}/jobs/{job_id}'
+  - 'GET /projects/{project_id}/dataexport'
+
+metadata_and_expansion:
+  field_expansion: not-documented
+  sparse_fieldsets: not-documented
+  metrics_parameterisation: >-
+    The metrics endpoint GET /projects/{project_id}/assets/groups/metrics takes a
+    parameterised metric vocabulary rather than a fixed field list - names compose from a
+    metric stem plus a severity and/or a rolling window, e.g. vuln_count_critical,
+    discovered_count_7d, resolved_past_sla_pct_critical_7d, mttr_critical_7d. The full
+    vocabulary is published at https://help.nucleussec.com/docs/metrics-api-reference.
+
+request_id_tracing:
+  documented: false
+  note: No correlation or request-id header is documented on any surface.
+
+versioning:
+  detail: lifecycle/nucleus-security-lifecycle.yml
+  summary: >-
+    Public vulnerability API is path-versioned (/nucleussec/v1). The platform API base
+    carries no version segment and no versioning policy is published.
+
+error_envelope:
+  format: bespoke
+  rfc9457: false
+  detail: errors/nucleus-security-problem-types.yml
+  shape: '{"code": string, "message": string, "data": {"status": integer}}'
+
+rate_limit_signaling:
+  present: false
+  detail: rate-limits/nucleus-security-rate-limits.yml
+  note: No X-RateLimit-*, RateLimit-* or Retry-After headers documented or observed.
+
+idempotency:
+  supported: false
+  header: null
+  scope: null
+  retention: null
+  note: >-
+    No idempotency key mechanism is documented on any Nucleus surface. The platform API has
+    real write operations - creating, updating and deleting finding processing rules - and
+    none of them publishes an idempotency guarantee. An agent retrying a failed
+    POST /projects/{project_id}/automation/findingprocessing has no published way to avoid
+    creating a duplicate rule. This is NOT `na`: a write surface exists, and the mechanism
+    is absent.
+
+dry_run_mode:
+  supported: partial
+  note: >-
+    No API-level dry-run parameter is documented. The Finding Processing Rules feature does
+    provide a preview/evaluation concept in the console, but nothing in the public API
+    documentation exposes a dry-run flag on the rule endpoints, so an agent cannot rehearse
+    a rule before creating it.
+
+reversibility:
+  grade: documented
+  assessment: >-
+    Nucleus's write surface is configuration, not transactions. The documented write
+    operations manage finding processing rules, and the API provides genuine inverse
+    operations for them - create is reversed by delete, update is reversed by a further
+    update. That is a real reversal path, so this grades `documented`. It does NOT grade
+    `verified`, because Nucleus publishes no time window, no undo/restore/soft-delete
+    semantics, and no retention period for deleted configuration anywhere in the public
+    help center. No window is asserted here because none is stated.
+  read_only: false
+  write_surfaces:
+  - surface: Finding Processing Rules
+    write_operation: 'POST /projects/{project_id}/automation/findingprocessing'
+    reversal_operation: 'DELETE /projects/{project_id}/automation/findingprocessing/{rule_id}'
+    reversal_type: delete
+    window: null
+    window_documented: false
+    docs: https://help.nucleussec.com/docs/finding-processing-rules-api
+    note: >-
+      Creating a rule is undone by deleting it. Nucleus does not state whether findings
+      already re-processed by the rule revert to their prior state when the rule is
+      removed, which is the reversal that actually matters. Treat rule creation as having
+      effects that outlive the rule until the provider documents otherwise.
+  - surface: Finding Processing Rules
+    write_operation: 'PUT /projects/{project_id}/automation/findingprocessing/{rule_id}'
+    reversal_operation: 'PUT /projects/{project_id}/automation/findingprocessing/{rule_id}'
+    reversal_type: overwrite
+    window: null
+    window_documented: false
+    note: >-
+      An update is reversible only by the caller re-applying the previous representation.
+      No version history, no rollback endpoint, and no prior-state retrieval is documented,
+      so the caller must have captured the prior state itself before writing.
+  - surface: MCP Server
+    write_operation: null
+    reversal_operation: null
+    reversal_type: na
+    note: >-
+      The documented MCP tool set is read/summarise only - projects, assets, findings,
+      metrics and NQL queries. No documented MCP tool mutates Nucleus state, so an agent
+      driving Nucleus through MCP has, per the current documentation, nothing to reverse.
+      This is a meaningful safety property and is recorded deliberately.
+  - surface: Public Vulnerability Intelligence API
+    reversal_type: na
+    note: Read-only. GET only; nothing to reverse.
+  unstated:
+  - Whether deleting a finding processing rule reverts findings the rule already modified.
+  - Any retention or restore window for deleted configuration.
+  - Any audit trail or prior-state retrieval endpoint for rule updates.
+
+cross_references:
+  errors: errors/nucleus-security-problem-types.yml
+  lifecycle: lifecycle/nucleus-security-lifecycle.yml
+  authentication: authentication/nucleus-security-authentication.yml
+  rate_limits: rate-limits/nucleus-security-rate-limits.yml
+  scopes: scopes/nucleus-security-scopes.yml

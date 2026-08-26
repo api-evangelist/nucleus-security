@@ -1,0 +1,38 @@
+name: Nucleus Security Agent Skills
+description: >-
+  Packaged agent skills for the Nucleus Security surfaces that are reachable without a
+  customer account. Both skills are grounded in operations verified live on 2026-08-26.
+generated: '2026-08-26'
+method: generated
+source: >-
+  Authored by API Evangelist against
+  openapi/nucleus-security-vulnerability-intelligence-openapi.yml and a live probe of the
+  Atlassian Statuspage v2 API at status.nucleussec.com.
+skills:
+- name: nucleus-security-triage-exploited-cves
+  file: nucleus-security-triage-exploited-cves.md
+  api: Nucleus Security Vulnerability Intelligence API
+  auth: none
+  operations: [listVulnerabilities]
+  summary: >-
+    Page the public vulnerability intelligence dataset and shortlist actively-exploited CVEs
+    using EPSS, CVSS and Nucleus Insights flags.
+- name: nucleus-security-monitor-platform-status
+  file: nucleus-security-monitor-platform-status.md
+  api: Nucleus Security Public Status Page
+  auth: none
+  operations: ['GET /summary.json', 'GET /status.json', 'GET /components.json', 'GET /incidents/unresolved.json']
+  summary: >-
+    Isolate whether an integration failure is your side, a Nucleus region, or a third-party
+    connector, using the 109-component public status page.
+not_written:
+  reason: >-
+    No skill was authored for the Nucleus platform REST API or the Nucleus MCP Server. Both
+    are per-tenant and authenticated, their contracts (Swagger definition and MCP
+    tools/list) are reachable only from inside a customer account, and only eight of their
+    operations are named on any public page - with no operationIds and no parameter schemas.
+    Authoring workflow steps against them would mean inventing operation identifiers and
+    request shapes. Recorded as a deliberate absence.
+  blocked_surfaces:
+  - https://[instance-name].nucleussec.com/nucleus/api
+  - https://[your-nucleus-instance].nucleussec.com/nucleus/mcp

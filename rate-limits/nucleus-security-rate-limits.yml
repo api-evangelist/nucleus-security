@@ -1,0 +1,63 @@
+name: Nucleus Security Rate Limits
+description: >-
+  Nucleus Security documents no API rate limits, and none were observable on the one
+  unauthenticated surface available for probing. This is a recorded absence, not an
+  unchecked field.
+generated: '2026-08-26'
+method: probed
+source: >-
+  Searched the Nucleus help center (291 indexed doc pages via
+  https://help.nucleussec.com/llms.txt) for rate-limit, throttle, quota, 429 and
+  Retry-After language, and inspected live response headers from
+  https://nucleussec.com/wp-json/nucleussec/v1/vulnerabilities/list, 2026-08-26.
+limit_count: 0
+limits: []
+response_headers:
+  documented: []
+  observed: []
+  note: >-
+    A live 200 from GET /wp-json/nucleussec/v1/vulnerabilities/list returned no
+    X-RateLimit-*, no RateLimit-* and no Retry-After header. Headers present were WordPress
+    and Cloudflare/WP Engine cache headers only (link, x-cacheable, cache-control:
+    max-age=600, x-cache, cf-cache-status) plus
+    access-control-expose-headers: X-WP-Total, X-WP-TotalPages, Link.
+exhaustion_status_code: unknown
+exhaustion_note: >-
+  No 429 response was observed and none is documented. Probing was deliberately kept to a
+  handful of requests, so exhaustion behaviour was not induced.
+surfaces:
+- surface: Public Vulnerability Intelligence API
+  url: https://nucleussec.com/wp-json/nucleussec/v1/vulnerabilities/list
+  auth: none
+  documented_limits: none
+  observed_limit_headers: none
+  effective_controls: >-
+    Cloudflare edge protection plus a 600-second cache-control max-age. Any rate limiting
+    is enforced at the edge and is not surfaced to the caller as a contract.
+- surface: Nucleus Platform REST API
+  url: https://[instance-name].nucleussec.com/nucleus/api
+  auth: apiKey (x-apikey)
+  documented_limits: none
+  observed_limit_headers: not-probed
+  note: >-
+    Per-tenant and authenticated; not probeable without customer credentials. No rate-limit
+    documentation appears anywhere in the public help center, including on the API
+    Documentation & Access page.
+- surface: Nucleus MCP Server
+  url: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
+  auth: oauth
+  documented_limits: none
+  observed_limit_headers: not-probed
+related_throttling:
+  note: >-
+    The Data Export API documents operational constraints that function like limits without
+    being rate limits: export files are generated on a schedule (asset data daily, finding
+    data weekly), expire after 7 days, and are automatically split into 16 MB chunks. These
+    are documented in https://help.nucleussec.com/docs/data-export.md and are recorded here
+    because they bound what an agent can pull and how often, but they are not request-rate
+    limits.
+gaps:
+- >-
+  An agent integrating the platform API has no published request budget and no runtime
+  signal. It cannot know its limit before hitting it, and cannot learn its remaining
+  allowance from any response header.

@@ -1,0 +1,119 @@
+name: Nucleus Security Well-Known Documents
+description: >-
+  Probe of RFC 8615 /.well-known/ paths across every Nucleus Security host discovered
+  during enrichment. nucleussec.com serves a real security.txt and a complete pair of
+  OAuth authorization-server (RFC 8414) and protected-resource (RFC 9728) metadata
+  documents that advertise an MCP-scoped OAuth server on the company's own domain.
+generated: '2026-08-26'
+method: probed
+source: Direct unauthenticated HTTPS probes of each path, 2026-08-26.
+hosts:
+- host: nucleussec.com
+  note: >-
+    Primary corporate + marketing host (WordPress on WP Engine, fronted by Cloudflare).
+    Serves the only real /.well-known/ documents in the estate.
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: nucleus-security-security.txt
+    content_type: text/plain
+    note: >-
+      Real RFC 9116 document. Contact mailto:security@nucleussec.com, Policy
+      https://nucleussec.com/vulnerability-disclosure-program/, Expires 2029-08-19.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: nucleus-security-oauth-authorization-server.json
+    content_type: application/json
+    note: >-
+      RFC 8414 metadata. issuer https://nucleussec.com, PKCE S256 required,
+      authorization_code + refresh_token grants, scopes_supported ["mcp"],
+      token_endpoint_auth_methods_supported ["none"] (public clients),
+      client_id_metadata_document_supported true. Served after a 301 to the
+      trailing-slash form.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: nucleus-security-oauth-protected-resource.json
+    content_type: application/json
+    note: >-
+      RFC 9728 metadata naming the protected resource
+      https://nucleussec.com/wp-json/mcp/mcp-oauth-server - i.e. the website MCP server.
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: www.nucleussec.com
+  note: >-
+    Same WordPress origin. The OAuth documents are served here too; security.txt is not
+    (the www vhost returns an origin 404 for it), so nucleussec.com is the canonical host -
+    which the Canonical field in security.txt itself states.
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: nucleus-security-oauth-authorization-server.json
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+- host: help.nucleussec.com
+  note: >-
+    Document360 knowledge base. Every /.well-known/ path returns the Document360 soft-404
+    HTML shell; none carry a document.
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: docs.nucleussec.com
+  note: Alias of the same Document360 knowledge base. No /.well-known/ documents.
+  documents:
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: app.nucleussec.com
+  note: >-
+    Application host. Returns a WAF "Request Rejected" page or Cloudflare 522 to
+    unauthenticated crawlers; no /.well-known/ document is reachable anonymously.
+  documents:
+  - path: /.well-known/security.txt
+    status: 522
+  - path: /.well-known/agent-card.json
+    status: 522
+- host: vip.nucleussec.com
+  note: >-
+    Nucleus VIP single-page application. Answers HTTP 200 with an identical 5,622-byte
+    HTML shell for EVERY path including /.well-known/* - a catch-all soft-200, not a
+    document. Recorded as a miss.
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    note: SPA catch-all HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    note: SPA catch-all HTML shell, not an AgentCard. Treated as a miss.
+summary:
+  hosts_probed: 6
+  documents_served: 3
+  agent_card_found: false
+  security_txt_found: true
+  api_catalog_found: false

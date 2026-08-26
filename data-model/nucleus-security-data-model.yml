@@ -1,0 +1,176 @@
+name: Nucleus Security Data Model
+description: >-
+  Entity-relationship view of the Nucleus Security domain. The Vulnerability entity is
+  derived field-for-field from the live public contract. The platform entities are derived
+  from the path structure of the endpoints the help center names verbatim, and from the
+  metric vocabulary published in the Metrics API Reference - not from a machine-readable
+  schema, because the platform Swagger is behind the customer console login.
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/nucleus-security-vulnerability-intelligence-openapi.yml (live-derived), plus
+  https://help.nucleussec.com/docs/metrics-api-reference.md, data-export.md,
+  finding-processing-rules-api.md, external-issue-linking.md,
+  projects-and-asset-group-structure.md, 2026-08-26.
+confidence:
+  vulnerability_entity: high
+  platform_entities: medium
+  platform_note: >-
+    Entity names and containment are stated plainly in the provider's own documentation and
+    endpoint paths. Field-level attributes for platform entities are NOT enumerated here
+    because no public schema declares them; only attributes the docs name explicitly appear.
+
+entities:
+- name: Vulnerability
+  surface: public_vulnerability_intelligence
+  source: Live contract, all fields observed
+  id_field: id
+  natural_key: cve_id
+  attributes:
+  - {name: id, type: string, note: provider-internal record id}
+  - {name: cve_id, type: string, standard: CVE}
+  - {name: cve_link, type: uri, note: NVD canonical URL}
+  - {name: vendor, type: string}
+  - {name: product, type: string}
+  - {name: date_added, type: date}
+  - {name: epss_score, type: string, standard: EPSS, nullable: true}
+  - {name: cvssv3_base, type: string, standard: CVSS v3.x, nullable: true}
+  - {name: cvssv4_base, type: string, standard: CVSS v4.0, nullable: true}
+  - {name: cisa_notes, type: string, standard: CISA KEV, nullable: true}
+  - {name: greynoise_tags, type: string, source: GreyNoise, nullable: true}
+  - {name: shadowserver_30d_avg, type: string, source: Shadowserver, nullable: true}
+  - {name: vulncheck_xdb_entries, type: string, source: VulnCheck XDB, nullable: true}
+  - {name: nucleus_exploited_by_malware, type: string, source: Nucleus Insights, nullable: true}
+  - {name: nucleus_public_exploit_available, type: string, source: Nucleus Insights, nullable: true}
+  - {name: nucleus_impacts_ot, type: string, source: Nucleus Insights, nullable: true}
+  - {name: created_at, type: datetime, nullable: true}
+  - {name: updated_at, type: datetime, nullable: true}
+  record_count_observed: 1638
+  observed: '2026-08-26'
+
+- name: Project
+  surface: platform
+  role: tenancy and permission boundary
+  id_field: project_id
+  evidence: Every documented platform endpoint is scoped under /projects/{project_id}.
+
+- name: Asset
+  surface: platform
+  role: the thing findings are attached to
+  evidence: >-
+    /projects/{project_id}/assets/... path segment; asset_count metric; Data Export
+    exports "active asset data" on a daily schedule.
+
+- name: AssetGroup
+  surface: platform
+  role: grouping of assets; the unit metrics are reported against and the unit AGAC permissions apply to
+  evidence: >-
+    GET /projects/{project_id}/assets/groups/metrics; documented at
+    projects-and-asset-group-structure.md and asset-group-access-control.md.
+
+- name: Finding
+  surface: platform
+  role: an instance of a vulnerability on an asset
+  evidence: >-
+    POST /api/projects/{project_id}/findings/search; Data Export exports finding data
+    weekly plus resolved findings and delta files.
+  documented_status_values:
+  - active
+  - exception_requested
+  - fixed
+  - in_progress
+  - potential
+  - waiting_for_third_party
+  - waiting_for_verification
+  documented_resolution_statuses:
+  - accepted_risk
+  - duplicate
+  - exception_granted
+  - false_positive
+  - manually_mitigated
+  - scan_mitigated
+  status_source: Metrics API Reference parameter vocabulary.
+
+- name: Ticket
+  surface: platform
+  role: external issue-tracker item linked to findings
+  evidence: >-
+    Ticketing metric family (open_ticket_count, tickets_created_count, tickets_closed_count);
+    external-issue-linking.md; Data Export exports ticketing data.
+
+- name: FindingProcessingRule
+  surface: platform
+  role: automation rule applied to incoming findings
+  id_field: rule_id
+  evidence: Full CRUD at /projects/{project_id}/automation/findingprocessing[/{rule_id}].
+
+- name: Job
+  surface: platform
+  role: asynchronous operation handle
+  id_field: job_id
+  evidence: 'GET /api/projects/{project_id}/jobs/{job_id}'
+
+- name: DataExportFile
+  surface: platform
+  role: generated bulk export artifact
+  evidence: 'GET /projects/{project_id}/dataexport'
+  attributes_documented:
+  - {name: expiry, value: 7 days}
+  - {name: max_chunk_size, value: 16 MB}
+  - {name: asset_schedule, value: daily}
+  - {name: finding_schedule, value: weekly}
+
+- name: User
+  surface: platform
+  role: principal holding roles per project; owner of a user API key
+  evidence: users-roles-and-permissions.md, api-access.md
+
+- name: ServiceAccount
+  surface: platform
+  role: API-only principal scoped to selected projects with a role in each
+  evidence: api-access.md ("Add API Account")
+
+- name: Role
+  surface: platform
+  role: named permission set assigned to a principal within a project
+  evidence: users-roles-and-permissions.md; SSO group-to-role-project mapping docs.
+
+relationships:
+- {from: Project, type: has_many, to: Asset, via: project_id}
+- {from: Project, type: has_many, to: AssetGroup, via: project_id}
+- {from: Project, type: has_many, to: Finding, via: project_id}
+- {from: Project, type: has_many, to: FindingProcessingRule, via: project_id}
+- {from: Project, type: has_many, to: DataExportFile, via: project_id}
+- {from: Project, type: has_many, to: Job, via: project_id}
+- {from: AssetGroup, type: has_many, to: Asset, via: asset group membership}
+- {from: Asset, type: has_many, to: Finding, via: asset reference}
+- {from: Finding, type: belongs_to, to: Asset, via: asset reference}
+- {from: Finding, type: has_many, to: Ticket, via: external issue link}
+- {from: Ticket, type: belongs_to, to: Finding, via: external issue link}
+- {from: FindingProcessingRule, type: has_many, to: Finding, via: rule evaluation at ingest}
+- {from: User, type: has_many, to: Role, via: role assignment per project}
+- {from: ServiceAccount, type: has_many, to: Role, via: role assignment per project}
+- from: Finding
+  type: belongs_to
+  to: Vulnerability
+  via: cve_id
+  note: >-
+    Conceptual join across surfaces. The public vulnerability intelligence dataset and the
+    tenant findings data are separate APIs, but both key on the CVE identifier, so CVE is
+    the join column between them.
+
+identifier_schemes:
+  cve: CVE-YYYY-NNNNN, the natural key of the Vulnerability entity and the cross-surface join key.
+  project_id: opaque numeric, appears in every platform path.
+  rule_id: opaque, addresses a FindingProcessingRule.
+  job_id: opaque, addresses an async Job.
+  note: No documented type-prefixed identifier convention (no "proj_"/"fnd_" style prefixes).
+
+gaps:
+- >-
+  No public schema for any platform entity. Field lists for Asset, Finding, Ticket, User
+  and Role are not enumerable from public material; only the status vocabularies above are
+  published, and those come from the metrics parameter reference rather than from a schema.
+- >-
+  Cardinality between Asset and AssetGroup (whether an asset may belong to several groups)
+  is not stated publicly.

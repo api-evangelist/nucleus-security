@@ -1,23 +1,183 @@
 aid: nucleus-security
 name: Nucleus Security
-description: 'Nucleus Security is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Nucleus Security is a risk-based vulnerability and exposure management platform that
+  unifies findings from across an organization's scanning estate - network, application,
+  cloud, container and penetration-test tooling - into a single normalized view, then
+  prioritizes and automates remediation against it. The platform ingests from roughly
+  thirty first-party connectors (Tenable, Qualys, Rapid7, Snyk, Checkmarx, Crowdstrike,
+  Orca, Prisma and others), enriches findings with threat intelligence including CISA KEV,
+  EPSS, CVSS v3/v4 and Nucleus Insights exploitation signals, and drives remediation
+  through ServiceNow, Jira and other ticketing systems. Programmatic access is a
+  first-class deployment model: every platform capability is exposed through an
+  API-key-authenticated REST API documented in-console with Swagger, and Nucleus ships a
+  hosted Model Context Protocol server so AI clients can query Nucleus data under the same
+  RBAC and Asset Group Access Control enforced in the UI. Nucleus also publishes an open,
+  unauthenticated vulnerability intelligence API on its corporate domain, and a
+  FedRAMP Moderate government offering, NucleusGov.
 url: https://raw.githubusercontent.com/api-evangelist/nucleus-security/refs/heads/main/apis.yml
+image: https://nucleussec.com/wp-content/uploads/2024/12/cropped-Nucleus-Full-Color-Logo-270x270.png
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-26'
 modified: '2026-08-26'
 tags:
 - Company
-apis: []
+- Security
+- Cybersecurity
+- Vulnerability Management
+- Exposure Management
+- Risk Management
+- Threat Intelligence
+- Compliance
+- DevSecOps
+- MCP
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+
+apis:
+- name: Nucleus Security Vulnerability Intelligence API
+  description: >-
+    Public, unauthenticated JSON API serving the Nucleus Security vulnerability
+    intelligence dataset - CVE records enriched with EPSS, CVSS v3/v4, CISA notes,
+    GreyNoise tags, Shadowserver observations, VulnCheck XDB entries and Nucleus Insights
+    exploitation flags. Verified live at HTTP 200 with 1,638 records on 2026-08-26.
+  humanURL: https://nucleussec.com/
+  baseURL: https://nucleussec.com/wp-json/nucleussec/v1
+  tags:
+  - Vulnerability Intelligence
+  - Threat Intelligence
+  - CVE
+  properties:
+  - type: OpenAPI
+    url: openapi/nucleus-security-vulnerability-intelligence-openapi.yml
+  - type: Overlay
+    url: overlays/nucleus-security-vulnerability-intelligence-overlay.yaml
+  - type: DataModel
+    url: data-model/nucleus-security-data-model.yml
+  - type: ErrorCatalog
+    url: errors/nucleus-security-problem-types.yml
+
+- name: Nucleus Security Platform REST API
+  description: >-
+    The Nucleus platform API. Every platform capability is exposed over REST, documented
+    with Swagger inside the authenticated customer console, and authenticated with a static
+    API key in an x-apikey header. The base URL is templated per tenant - the instance name
+    is the customer's own subdomain. Publicly documented operations cover project-scoped
+    metrics, findings search, finding processing rules, bulk data export and async job
+    polling.
+  humanURL: https://help.nucleussec.com/docs/api-access
+  baseURL: https://[instance-name].nucleussec.com/nucleus/api
+  tags:
+  - Vulnerability Management
+  - Findings
+  - Assets
+  - Metrics
+  properties:
+  - type: Documentation
+    url: https://help.nucleussec.com/docs/api-access
+  - type: Authentication
+    url: authentication/nucleus-security-authentication.yml
+  - type: Conventions
+    url: conventions/nucleus-security-conventions.yml
+  - type: Lifecycle
+    url: lifecycle/nucleus-security-lifecycle.yml
+
+- name: Nucleus MCP Server
+  description: >-
+    Hosted remote Model Context Protocol server included with the Nucleus platform,
+    reachable at a per-tenant URL. Exposes project, asset, finding/vulnerability and
+    Nucleus Query Language tools to AI clients over OAuth, enforcing the same RBAC and
+    Asset Group Access Control as the console, evaluated at query time. Tested by the
+    provider with ChatGPT, Claude and Augment Code.
+  humanURL: https://nucleussec.com/platform/mcp-server/
+  baseURL: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
+  tags:
+  - MCP
+  - AI
+  - Agents
+  properties:
+  - type: MCPServer
+    url: mcp/nucleus-security-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/nucleus-security-tool-crosswalk.yml
+  - type: Documentation
+    url: https://help.nucleussec.com/docs/nucleus-mcp-server
+
 common:
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://nucleussec.com/
+- type: Documentation
+  url: https://help.nucleussec.com/
+- type: APIReference
+  url: https://help.nucleussec.com/docs/api-access
+- type: GettingStarted
+  url: https://help.nucleussec.com/docs/quickstart
+- type: Support
+  url: https://nucleussec.atlassian.net/servicedesk/customer/portal/3
+- type: Blog
+  url: https://nucleussec.com/blog/
+- type: GitHubOrganization
+  url: https://github.com/nucleus-security
+- type: Pricing
+  url: https://nucleussec.com/get-pricing/
+- type: TermsOfService
+  url: https://nucleussec.com/legal/msa/
+- type: PrivacyPolicy
+  url: https://nucleussec.com/privacy-policy/
+- type: StatusPage
+  url: https://status.nucleussec.com/
+- type: Security
+  url: security/nucleus-security-vulnerability-disclosure.yml
+- type: Compliance
+  url: security/nucleus-security-trust-center.yml
+- type: TrustCenter
+  url: security/nucleus-security-trust-center.yml
+- type: VulnerabilityDisclosure
+  url: security/nucleus-security-vulnerability-disclosure.yml
+- type: SecurityTxt
+  url: well-known/nucleus-security-security.txt
+- type: DomainSecurity
+  url: security/nucleus-security-domain-security.yml
+- type: WellKnown
+  url: well-known/nucleus-security-well-known.yml
+- type: OAuthScopes
+  url: scopes/nucleus-security-scopes.yml
+- type: Authentication
+  url: authentication/nucleus-security-authentication.yml
+- type: Conventions
+  url: conventions/nucleus-security-conventions.yml
+- type: Conformance
+  url: conformance/nucleus-security-conformance.yml
+- type: ErrorCatalog
+  url: errors/nucleus-security-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/nucleus-security-lifecycle.yml
+- type: Plans
+  url: plans/nucleus-security-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/nucleus-security-rate-limits.yml
+- type: Packages
+  url: packages/nucleus-security-packages.yml
+- type: DataModel
+  url: data-model/nucleus-security-data-model.yml
+- type: MCPServer
+  url: mcp/nucleus-security-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/nucleus-security-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/nucleus-security-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Overlay
+  url: overlays/nucleus-security-vulnerability-intelligence-overlay.yaml
+
+x-enrichment:
+  date: '2026-08-26'
+  status: enriched
+  artifacts_added: 27
+  pass: local-v1

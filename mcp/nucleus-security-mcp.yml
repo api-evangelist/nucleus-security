@@ -1,0 +1,146 @@
+name: Nucleus Security MCP Servers
+description: >-
+  Nucleus Security operates TWO distinct, real, remote Model Context Protocol servers.
+  The product server is a documented per-tenant endpoint on the customer's own Nucleus
+  instance; the website server is an anonymously discoverable MCP endpoint on the
+  corporate WordPress host advertised through RFC 8414 / RFC 9728 metadata. Both are
+  OAuth-gated, so neither returned a tools/list to an unauthenticated probe.
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://help.nucleussec.com/docs/nucleus-mcp-server.md (product server, provider docs)
+  and direct probes of https://nucleussec.com/.well-known/oauth-protected-resource plus
+  https://nucleussec.com/wp-json/mcp (website server), 2026-08-26.
+status: published
+
+deployment:
+  mode: remote
+  endpoint: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
+  auth: oauth
+  verified: searched
+  note: >-
+    Templated per-tenant host. The provider documents the URL FORMAT verbatim as
+    "https://[your-nucleus-instance].nucleussec.com/nucleus/mcp"; the instance name is the
+    customer's own subdomain, so there is no single shared endpoint to probe. No install
+    command and no package - this is a hosted remote server, not a stdio server. Nucleus
+    separately publishes a guide for building your OWN local stdio MCP server that proxies
+    the Nucleus REST API using the third-party open-source mcp-openapi-proxy project; that
+    is a customer-built integration, NOT a Nucleus-shipped stdio package, and is recorded
+    under `related_guidance` below rather than as a deployment mode.
+
+servers:
+- id: nucleus-platform-mcp
+  name: Nucleus MCP Server
+  primary: true
+  mode: remote
+  endpoint: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
+  auth: oauth
+  auth_detail: >-
+    Authenticate with Nucleus account credentials and complete an on-screen authorization
+    prompt in the AI client. Access is governed by a dedicated MCP permission in the
+    Nucleus role model, enabled by default on all out-of-the-box roles. MCP will not
+    function if API access is disabled for the user or role.
+  verified: searched
+  docs: https://help.nucleussec.com/docs/nucleus-mcp-server.md
+  included_with_product: true
+  access_control: >-
+    Fully honours Nucleus Role-Based Access Control (RBAC) and Asset Group Access Control
+    (AGAC). Permissions are evaluated at query time, so an administrator changing a user's
+    access changes what the connected AI can reach on the next interaction. AI clients do
+    not bypass Nucleus access controls.
+  known_supported_clients:
+  - ChatGPT
+  - Claude
+  - Augment Code
+  clients_note: >-
+    Provider states these clients have been tested to work but that Nucleus offers no
+    official support or non-support for specific AI platforms.
+  tools:
+    schemas_available: false
+    schemas_note: >-
+      Tool inputSchemas are NOT publicly available. The endpoint is per-tenant and
+      OAuth-gated, so tools/list requires an authenticated session against a customer
+      instance. The groups below are transcribed from the provider's own documentation,
+      which describes tools by CATEGORY rather than by tool name. Individual tool names
+      and their input schemas require authenticated introspection.
+    groups:
+    - category: Project Management
+      description: Retrieve lists of projects, or detailed information about individual projects.
+    - category: Asset Management
+      description: >-
+        Access data about assets, including asset details, findings, associated groups,
+        and related metrics.
+    - category: Findings and Vulnerability Management
+      description: >-
+        Obtain vulnerability trend information, view findings sorted by risk, and pull
+        current vulnerability metrics.
+    - category: Nucleus Query Language (NQL)
+      description: >-
+        Discover available datasets (NQL Metadata), retrieve the full NQL syntax reference
+        (NQL Reference), and execute NQL queries against findings, assets and related
+        datasets (NQL Query). NQL tools honour the same RBAC/AGAC enforcement; no
+        additional access is granted through NQL.
+    volatility_note: >-
+      Provider states "MCP tools will be updated periodically and will be visible in your
+      AI client's connector UI" - the tool set is explicitly not frozen.
+  documented_use_cases:
+  - Natural language queries translated into NQL and executed under the user's RBAC/AGAC scope
+  - Automated alert enrichment from a SIEM or SOAR platform
+  - Remediation planning from active findings
+  - Executive summaries of vulnerability trends, risk posture and remediation performance
+  - Cross-system correlation of Nucleus data with other tools
+
+- id: nucleus-website-mcp
+  name: Nucleus Security website MCP server (WordPress MCP Adapter)
+  primary: false
+  mode: remote
+  endpoint: https://nucleussec.com/wp-json/mcp/mcp-oauth-server
+  auth: oauth
+  verified: probed
+  x-evidence:
+    fetched: '2026-08-26'
+    discovery_url: https://nucleussec.com/.well-known/oauth-protected-resource
+    discovery_status: 200
+    tools_list_url: https://nucleussec.com/wp-json/mcp/mcp-oauth-server
+    tools_list_method: POST
+    tools_list_status: 401
+    tools_list_body: '{"code":"mcp_unauthorized","message":"MCP authentication required.","data":{"status":401}}'
+  note: >-
+    Discovered anonymously, not documented by the provider. The corporate WordPress site
+    runs the WordPress MCP Adapter (the `mcp` REST namespace alongside `wp-abilities/v1`)
+    and advertises it through complete RFC 9728 protected-resource metadata pointing at
+    RFC 8414 authorization-server metadata on the same host. A tools/list POST returns
+    HTTP 401 `mcp_unauthorized`, so the tool set is auth-gated and was not enumerated.
+    This server exposes the corporate WEBSITE's content surface, not Nucleus platform
+    vulnerability data - do not conflate it with the product MCP server above.
+  sibling_endpoints:
+  - endpoint: https://nucleussec.com/wp-json/mcp/mcp-adapter-default-server
+    status: 401
+    note: Second registered MCP server on the same adapter; returns rest_forbidden to anonymous callers.
+  oauth:
+    authorization_server: https://nucleussec.com
+    metadata: https://nucleussec.com/.well-known/oauth-authorization-server
+    authorization_endpoint: https://nucleussec.com/oauth/authorize
+    token_endpoint: https://nucleussec.com/oauth/token
+    revocation_endpoint: https://nucleussec.com/oauth/revoke
+    grant_types: [authorization_code, refresh_token]
+    pkce: S256
+    scopes: [mcp]
+    token_endpoint_auth_methods: [none]
+    client_id_metadata_document_supported: true
+    dynamic_client_registration: false
+
+related_guidance:
+- title: Create a local MCP server to connect to Nucleus REST APIs
+  url: https://help.nucleussec.com/docs/create-a-local-mcp-server-to-connect-to-nucleus-rest-apis.md
+  published: '2025-07-15'
+  mode: local-stdio
+  first_party: false
+  note: >-
+    A Nucleus Labs walkthrough for a CUSTOMER-BUILT local stdio MCP server. It runs the
+    third-party open-source project `mcp-openapi-proxy` via `uvx`, pointed at the
+    customer's own Nucleus swagger.yaml and API base
+    https://[instance-name].nucleussec.com/nucleus/api, passing the Nucleus API key as an
+    `x-apikey` extra header. Nucleus publishes no stdio package of its own; this is
+    guidance, not a shipped artifact, and is deliberately NOT counted as a local-stdio
+    deployment mode.

@@ -1,0 +1,121 @@
+name: Nucleus Security Packages and SDKs
+description: >-
+  Nucleus Security publishes no first-party client SDK on any public package registry. The
+  only Nucleus-authored public code artifact is a Burp Suite extension on GitHub, last
+  pushed in 2023 and distributed as source with no registry release. The one Python
+  package on PyPI that wraps the Nucleus API is explicitly third-party.
+generated: '2026-08-26'
+method: searched
+source: >-
+  Searched npm (registry.npmjs.org search), PyPI, and the GitHub organization
+  https://github.com/nucleus-security, plus the Nucleus help center SDK/API pages,
+  2026-08-26. Registry metadata read from registry.npmjs.org and pypi.org/pypi/*/json.
+official_sdk_count: 0
+package_count: 2
+
+packages:
+- name: nucleus-security-api-wrapper
+  registry: pypi
+  url: https://pypi.org/project/nucleus-security-api-wrapper/
+  language: python
+  official: false
+  version: 0.1.0
+  published: '2024-11-08'
+  repository: https://github.com/locm-ai/Nucleus-Security-Python-API-Wrapper
+  author: Loc Mai (locm.ai)
+  summary: Unofficial Python SDK for the Nucleus Security API - A third-party implementation.
+  note: >-
+    NOT first-party. The package's own PyPI summary describes itself as "Unofficial ... A
+    third-party implementation" and its repository is under the locm-ai GitHub account, not
+    nucleus-security. Its declared home_page field points at
+    https://github.com/nucleus/nucleus-python-sdk, a repository that does not exist under
+    any Nucleus organization - a misleading metadata field, not evidence of a first-party
+    SDK. Still on its initial 0.1.0 release from November 2024 with no subsequent version.
+    Recorded here so the absence of a first-party SDK is not mistaken for the presence of one.
+  currency_signal: >-
+    Single release, 21 months old as of this pass, against a platform that shipped a new
+    MCP server in 2026. Treat as unmaintained.
+
+- name: Nucleus-Burp-Extension
+  registry: none
+  url: https://github.com/nucleus-security/Nucleus-Burp-Extension
+  language: java
+  official: true
+  version: null
+  published: null
+  last_pushed: '2023-04-14'
+  summary: Burp Extension for Nucleus.
+  note: >-
+    First-party - published under the nucleus-security GitHub organization. Distributed as
+    source only; there is no Maven Central coordinate, no GitHub release, and no registry
+    metadata endpoint to query, so `version` and `published` are null by fact rather than by
+    omission. A consumer cannot pin a version. Last pushed 2023-04-14; not an API client
+    library but a scanner-integration plugin.
+  currency_signal: >-
+    No commit in over three years. Predates the MCP server, the current metrics API and the
+    Data Export API.
+
+registries_checked:
+- registry: npm
+  query: nucleussec
+  result: no packages
+- registry: pypi
+  query: nucleus-security
+  result: one third-party wrapper (above); no first-party package
+- registry: maven-central
+  result: none found
+- registry: nuget
+  result: none found
+- registry: rubygems
+  result: none found
+- registry: crates.io
+  result: none found
+- registry: packagist
+  result: none found
+- registry: pkg.go.dev
+  result: none found
+
+github_organization:
+  url: https://github.com/nucleus-security
+  public_repo_count: 4
+  repos:
+  - name: Nucleus-Burp-Extension
+    language: java
+    last_pushed: '2023-04-14'
+    first_party: true
+  - name: WebGoat
+    language: javascript
+    last_pushed: '2021-11-02'
+    first_party: false
+    note: Fork of the OWASP WebGoat deliberately-insecure training application.
+  - name: WebGoat-Legacy
+    language: java
+    last_pushed: '2021-07-15'
+    first_party: false
+    note: Fork of legacy OWASP WebGoat 6.0.
+  - name: test-archived-dependabot
+    last_pushed: '2024-08-28'
+    first_party: false
+    note: Dependabot demo fork.
+  assessment: >-
+    The organization holds no SDK, no CLI, no example client, and no published API tooling.
+    Two of the four repositories are forks of an OWASP training app.
+
+integration_approach:
+  note: >-
+    Nucleus's integration strategy is connectors, not SDKs. Roughly 30 third-party scanner
+    and ticketing integrations are operated as first-party connectors (visible as individual
+    components on https://status.nucleussec.com/) rather than shipped as client libraries.
+    The provider's documented answer for programmatic access is the raw REST API with an
+    `x-apikey` header, and its documented answer for AI access is the hosted MCP server. For
+    a local MCP client it points customers at the third-party open-source
+    `mcp-openapi-proxy` project rather than shipping one.
+  reference: https://nucleussec.com/platform/integrations/
+
+gaps:
+- No first-party client library in any language on any registry.
+- No CLI.
+- No Postman collection found.
+- >-
+  The only first-party public code artifact has no versioned release, so it cannot be
+  pinned or dependency-managed.

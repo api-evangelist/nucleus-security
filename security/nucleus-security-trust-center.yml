@@ -1,0 +1,49 @@
+name: Nucleus Security Trust Center
+description: >-
+  Nucleus Security operates a public trust center at trust.nucleussec.com (Aptible
+  Conveyor) listing named certifications, audit reports and security documents for both
+  the commercial Nucleus platform and the NucleusGov offering.
+generated: '2026-08-26'
+method: searched
+source: https://trust.nucleussec.com/
+url: https://trust.nucleussec.com/
+x-evidence:
+  fetched: '2026-08-26'
+  url: https://trust.nucleussec.com/
+  http_status: 200
+  host_platform: Aptible Conveyor (elb-conveyor-105241.aptible.in)
+certifications:
+- name: SOC 2 Type II
+  status: certified
+  scope: Nucleus and NucleusGov
+  evidence: 2026 Nucleus Security SOC 2 Type II report listed as an available document
+  document_access: request through the trust center
+- name: FedRAMP Moderate
+  status: authorized
+  scope: NucleusGov
+  evidence: FedRAMP Moderate listed against the NucleusGov product on the trust center
+- name: NIST CSF
+  status: aligned
+  scope: Nucleus Security program
+  evidence: NIST Cybersecurity Framework badge displayed on the trust center
+- name: CISA Secure by Design Pledge
+  status: signed
+  scope: Nucleus Security
+  evidence: Secure by Design Pledge commitment badge displayed on the trust center
+documents:
+- title: Nucleus Security Policy v2.8
+- title: Nucleus Security August 2025 WebApp PenTest
+- title: Nucleus Security - Privacy Policy v2.0
+- title: 2026 Nucleus Security SOC 2 Type II
+subprocessors:
+  published: true
+  note: Subprocessor list surfaced through the trust center.
+related:
+  vulnerability_disclosure: https://nucleussec.com/vulnerability-disclosure-program/
+  status_page: https://status.nucleussec.com/
+  privacy_policy: https://nucleussec.com/privacy-policy/
+  security_overview: https://nucleussec.com/security/
+note: >-
+  The public trust-center overview names each certification. Underlying audit reports are
+  distributed as documents through the trust center rather than published openly; no NDA
+  requirement is stated on the overview page itself.

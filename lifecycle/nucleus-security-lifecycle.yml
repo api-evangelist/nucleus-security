@@ -1,0 +1,96 @@
+name: Nucleus Security API Lifecycle
+description: >-
+  Versioning, deprecation, status and support posture for the Nucleus Security API
+  surfaces. Nucleus runs a real multi-region Atlassian Statuspage with granular per-region
+  and per-connector components, but publishes no API deprecation policy and no dated API
+  changelog.
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://status.nucleussec.com/api/v2/summary.json (probed),
+  https://help.nucleussec.com/llms.txt, and the Nucleus help center, 2026-08-26.
+
+versioning:
+  scheme: path-segment
+  platform_api:
+    base: https://[instance-name].nucleussec.com/nucleus/api
+    version_in_path: false
+    note: >-
+      The platform API base carries no version segment. The in-console Swagger definition
+      is the single current contract; no versioned variants are advertised publicly.
+  public_vulnerability_api:
+    base: https://nucleussec.com/wp-json/nucleussec/v1
+    current_version: v1
+    version_in_path: true
+  docs:
+    base: https://help.nucleussec.com/v1/docs/
+    note: The help center itself is versioned as v1.
+
+deprecation:
+  policy_published: false
+  policy_url: null
+  sunset_header: unknown
+  deprecation_header: unknown
+  rfc8594: false
+  note: >-
+    No API deprecation or sunset policy page exists in the public help center, and no
+    Sunset or Deprecation response header could be observed because the platform API is
+    authenticated. The public vulnerability intelligence API returned no RFC 8594 headers.
+  deprecated_operations: []
+  deprecated_operations_note: >-
+    None. The generated public OpenAPI declares no deprecated operations, and the platform
+    Swagger is not publicly readable.
+
+status_page:
+  published: true
+  url: https://status.nucleussec.com/
+  platform: Atlassian Statuspage
+  api: https://status.nucleussec.com/api/v2/summary.json
+  api_status: 200
+  probed: '2026-08-26'
+  page_id: 6s7zf54hrbyx
+  page_name: Nucleus Security Public Status Page
+  component_count: 109
+  subscribable: true
+  granularity: >-
+    Unusually granular. Components cover named regional platforms (US, UK, EU, AU, AE plus
+    GovCloud and trial platforms), the documentation host help.nucleussec.com, the VIP
+    application vip.nucleussec.com, Assetnote, and roughly 30 individual third-party
+    scanner and ticketing connectors (Tenable.io, Tenable.sc, Qualys, Rapid7, Snyk,
+    Checkmarx, Crowdstrike, Orca, Prisma, ServiceNow, Jira, GitHub, GitLab, Bitbucket,
+    HackerOne, BugCrowd, Synack, PagerDuty, Slack, Sonatype, SonarQube, SonarCloud and
+    others). A consumer can subscribe to the exact connector their integration depends on.
+  regions_named: [US, UK, EU, AU, AE, GovCloud]
+
+sla:
+  published: false
+  note: >-
+    No public uptime SLA. Commercial terms are in the Master Services Agreement at
+    https://nucleussec.com/legal/msa/ rather than on a public SLA page.
+
+support:
+  channels:
+  - type: service_desk
+    url: https://nucleussec.atlassian.net/servicedesk/customer/portal/3
+    note: Atlassian Jira Service Management customer portal, referenced from the API access documentation.
+  - type: email
+    url: mailto:support@nucleussec.com
+  - type: knowledge_base
+    url: https://help.nucleussec.com/
+  - type: security
+    url: mailto:security@nucleussec.com
+
+changelog:
+  api_changelog_published: false
+  note: >-
+    No dated API changelog or release-notes section exists in the help center. Product
+    release news is published as narrative blog posts on nucleussec.com/blog/ (for example
+    "May 2025 Release - Charting the Future of Risk Reduction with Nucleus"), which is
+    marketing cadence rather than an API change record. The provider's own MCP
+    documentation warns that "MCP tools will be updated periodically" without pointing at
+    any record of those updates.
+
+gaps:
+- No deprecation policy, no Sunset/Deprecation header commitment, no versioning policy statement.
+- No dated API changelog - a consumer cannot tell what changed in the API or when.
+- No public SLA.

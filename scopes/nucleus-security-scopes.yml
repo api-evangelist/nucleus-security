@@ -1,0 +1,61 @@
+name: Nucleus Security OAuth Scopes
+description: >-
+  The only OAuth scope Nucleus Security publishes machine-readably is the single `mcp`
+  scope advertised by the RFC 8414 authorization-server metadata on nucleussec.com. The
+  platform's real authorization model is not scope-based - it is RBAC plus Asset Group
+  Access Control, evaluated server-side per project.
+generated: '2026-08-26'
+method: probed
+source: https://nucleussec.com/.well-known/oauth-authorization-server
+docs: https://help.nucleussec.com/docs/users-roles-and-permissions
+x-evidence:
+  url: https://nucleussec.com/.well-known/oauth-authorization-server
+  http_status: 200
+  fetched: '2026-08-26'
+authorization_server:
+  issuer: https://nucleussec.com
+  authorization_endpoint: https://nucleussec.com/oauth/authorize
+  token_endpoint: https://nucleussec.com/oauth/token
+  revocation_endpoint: https://nucleussec.com/oauth/revoke
+  grant_types_supported: [authorization_code, refresh_token]
+  response_types_supported: [code]
+  code_challenge_methods_supported: [S256]
+  token_endpoint_auth_methods_supported: [none]
+  client_id_metadata_document_supported: true
+  authorization_response_iss_parameter_supported: true
+scopes:
+- scope: mcp
+  description: >-
+    Grants an MCP client access to the protected resource
+    https://nucleussec.com/wp-json/mcp/mcp-oauth-server. The single scope published by the
+    authorization server; it is not further decomposed into read/write or per-resource scopes.
+  resource: https://nucleussec.com/wp-json/mcp/mcp-oauth-server
+  source: RFC 8414 scopes_supported
+scope_count: 1
+authorization_model:
+  primary: rbac
+  note: >-
+    Nucleus does not express platform API authorization as OAuth scopes. Access is granted
+    through roles assigned per project (RBAC) and narrowed by Asset Group Access Control
+    (AGAC). API keys and MCP sessions both inherit the owning principal's role, and
+    permissions are re-evaluated at query time, so an administrator changing a role changes
+    what an already-issued key or session can reach.
+  dedicated_permissions:
+  - name: API Access
+    effect: >-
+      Required for a user or role to hold an API key at all. Disabling it also disables MCP
+      for that principal.
+  - name: MCP access
+    effect: >-
+      Dedicated permission in the Nucleus role model governing MCP Server use. Enabled by
+      default on all out-of-the-box roles.
+  - name: Organization Admin
+    effect: Required to create API-only service accounts and view their keys.
+  docs: https://help.nucleussec.com/docs/users-roles-and-permissions
+gaps:
+- >-
+  No scopes reference page exists for the platform API because the platform API is not
+  scope-based. The permissions reference is the roles documentation cited above.
+- >-
+  The product MCP server at https://[instance].nucleussec.com/nucleus/mcp is per-tenant;
+  its authorization-server metadata was not probed because no shared instance host exists.

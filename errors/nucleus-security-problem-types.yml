@@ -1,0 +1,81 @@
+name: Nucleus Security Error Catalog
+description: >-
+  Observed error envelopes across the Nucleus Security public surfaces. Nucleus does not
+  publish an error reference and does not use RFC 9457 problem+json anywhere that is
+  publicly observable. Every entry below was produced by a real request.
+generated: '2026-08-26'
+method: probed
+source: Live unauthenticated requests against nucleussec.com surfaces, 2026-08-26.
+format: bespoke
+rfc9457: false
+rfc9457_note: >-
+  No application/problem+json response was observed on any Nucleus host. Errors use two
+  different bespoke JSON envelopes depending on which subsystem answers.
+
+envelopes:
+- id: wp-rest
+  name: WordPress REST error envelope
+  surfaces:
+  - https://nucleussec.com/wp-json/nucleussec/v1/*
+  - https://nucleussec.com/wp-json/mcp/*
+  content_type: application/json
+  shape:
+    code: string
+    message: string
+    data:
+      status: integer
+  note: >-
+    The public vulnerability intelligence API and the website MCP adapter both sit on the
+    WordPress REST stack and share this envelope. The HTTP status is duplicated inside
+    data.status.
+- id: waf
+  name: Edge rejection page
+  surfaces:
+  - https://app.nucleussec.com/*
+  content_type: text/html
+  shape: HTML
+  note: >-
+    The application host is fronted by a WAF that answers unrecognised automated requests
+    with an HTML "Request Rejected" page rather than a JSON error, and by Cloudflare 522 on
+    origin timeouts. Not machine-parseable.
+
+problem_types:
+- code: rest_no_route
+  status: 404
+  title: No matching route
+  detail: 'No route was found matching the URL and request method.'
+  envelope: wp-rest
+  observed_at: https://nucleussec.com/wp-json/nucleussec/v1/vulnerabilities?per_page=1
+  observed: '2026-08-26'
+  remediation: >-
+    Check the method as well as the path. /vulnerabilities is declared POST-only and
+    /vulnerabilities/list is declared GET-only; using the wrong verb yields this error
+    rather than a 405.
+- code: mcp_unauthorized
+  status: 401
+  title: MCP authentication required
+  detail: 'MCP authentication required.'
+  envelope: wp-rest
+  observed_at: https://nucleussec.com/wp-json/mcp/mcp-oauth-server
+  observed: '2026-08-26'
+  remediation: >-
+    Complete the OAuth 2.1 authorization-code + PKCE flow advertised at
+    https://nucleussec.com/.well-known/oauth-authorization-server and present the access
+    token as a bearer token in the Authorization header.
+- code: rest_forbidden
+  status: 401
+  title: Not allowed
+  detail: 'Sorry, you are not allowed to do that.'
+  envelope: wp-rest
+  observed_at: https://nucleussec.com/wp-json/mcp/mcp-adapter-default-server
+  observed: '2026-08-26'
+  remediation: Authenticate. Also returned by /wp-json/wp-abilities/v1/abilities to anonymous callers.
+
+gaps:
+- >-
+  No error catalog is published for the tenant platform API at
+  https://[instance-name].nucleussec.com/nucleus/api. Its Swagger definition - which would
+  carry the 4xx/5xx response schemas - is served only inside an authenticated customer
+  console, so no platform error types could be derived.
+- No rate-limit error (429) was observed or documented on any surface.
+- No error code registry, no machine-readable error taxonomy, no documented retry semantics.

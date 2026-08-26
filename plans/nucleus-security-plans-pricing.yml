@@ -1,0 +1,45 @@
+name: Nucleus Security Plans and Pricing
+description: >-
+  Nucleus Security publishes no priced plans. The pricing page is a quote-request form
+  that states pricing depends on the customer's environment. It acknowledges two license
+  tiers exist but names neither and prices neither.
+generated: '2026-08-26'
+method: searched
+source: https://nucleussec.com/get-pricing/
+x-evidence:
+- url: https://nucleussec.com/get-pricing/
+  http_status: 200
+  fetched: '2026-08-26'
+model: quote-only
+plan_count: 0
+plans: []
+note: >-
+  The page states: "Our pricing model is based on a few factors that are specific to your
+  organization's environment. That's why we will need to contact you to provide accurate
+  pricing." It also states that "Nucleus offers two license tiers for unified vulnerability
+  management" without naming, describing, or pricing either one. A prospective consumer
+  cannot determine cost, included quota, overage, or any tier-attached limit without
+  entering a sales conversation. plan_count is 0 because zero plans are published, not
+  because none exist.
+free_tier:
+  published: false
+trial:
+  published: true
+  note: >-
+    Trial platforms exist as named components on the public status page ("US Trial Platform 1",
+    "EU Trial Platform 1"), and the site offers an on-demand demo at
+    https://nucleussec.com/demo-on-demand/. No self-serve signup, no published trial terms.
+  demo_url: https://nucleussec.com/demo-on-demand/
+api_pricing:
+  metered: false
+  note: >-
+    The API and the MCP Server are included with the product rather than priced separately.
+    The provider states the MCP Server "is included with the product". A separate
+    API-only deployment model is marketed at
+    https://nucleussec.com/platform/api-only-deployment/ but carries no published price.
+government_offering:
+  name: NucleusGov
+  note: FedRAMP Moderate offering. No published pricing.
+commercial_terms:
+  msa: https://nucleussec.com/legal/msa/
+  legal: https://nucleussec.com/legal/
