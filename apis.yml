@@ -40,36 +40,13 @@ maintainers:
   email: info@apis.io
 
 apis:
-- name: Nucleus Security Vulnerability Intelligence API
-  description: >-
-    Public, unauthenticated JSON API serving the Nucleus Security vulnerability
-    intelligence dataset - CVE records enriched with EPSS, CVSS v3/v4, CISA notes,
-    GreyNoise tags, Shadowserver observations, VulnCheck XDB entries and Nucleus Insights
-    exploitation flags. Verified live at HTTP 200 with 1,638 records on 2026-08-26.
-  humanURL: https://nucleussec.com/
-  baseURL: https://nucleussec.com/wp-json/nucleussec/v1
-  tags:
-  - Vulnerability Intelligence
-  - Threat Intelligence
-  - CVE
-  properties:
-  - type: OpenAPI
-    url: openapi/nucleus-security-vulnerability-intelligence-openapi.yml
-  - type: Overlay
-    url: overlays/nucleus-security-vulnerability-intelligence-overlay.yaml
-  - type: DataModel
-    url: data-model/nucleus-security-data-model.yml
-  - type: ErrorCatalog
-    url: errors/nucleus-security-problem-types.yml
-
 - name: Nucleus Security Platform REST API
   description: >-
-    The Nucleus platform API. Every platform capability is exposed over REST, documented
-    with Swagger inside the authenticated customer console, and authenticated with a static
-    API key in an x-apikey header. The base URL is templated per tenant - the instance name
-    is the customer's own subdomain. Publicly documented operations cover project-scoped
-    metrics, findings search, finding processing rules, bulk data export and async job
-    polling.
+    The Nucleus platform API. Every platform capability is exposed over REST, documented with Swagger
+    inside the authenticated customer console, and authenticated with a static API key in an x-apikey
+    header. The base URL is templated per tenant - the instance name is the customer's own subdomain.
+    Publicly documented operations cover project-scoped metrics, findings search, finding processing rules,
+    bulk data export and async job polling.
   humanURL: https://help.nucleussec.com/docs/api-access
   baseURL: https://[instance-name].nucleussec.com/nucleus/api
   tags:
@@ -86,14 +63,12 @@ apis:
     url: conventions/nucleus-security-conventions.yml
   - type: Lifecycle
     url: lifecycle/nucleus-security-lifecycle.yml
-
 - name: Nucleus MCP Server
   description: >-
-    Hosted remote Model Context Protocol server included with the Nucleus platform,
-    reachable at a per-tenant URL. Exposes project, asset, finding/vulnerability and
-    Nucleus Query Language tools to AI clients over OAuth, enforcing the same RBAC and
-    Asset Group Access Control as the console, evaluated at query time. Tested by the
-    provider with ChatGPT, Claude and Augment Code.
+    Hosted remote Model Context Protocol server included with the Nucleus platform, reachable at a per-tenant
+    URL. Exposes project, asset, finding/vulnerability and Nucleus Query Language tools to AI clients
+    over OAuth, enforcing the same RBAC and Asset Group Access Control as the console, evaluated at query
+    time. Tested by the provider with ChatGPT, Claude and Augment Code.
   humanURL: https://nucleussec.com/platform/mcp-server/
   baseURL: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
   tags:
@@ -107,7 +82,21 @@ apis:
     url: mcp/nucleus-security-tool-crosswalk.yml
   - type: Documentation
     url: https://help.nucleussec.com/docs/nucleus-mcp-server
-
+- aid: nucleus-security:nucleus-security-vulnerabilities-api
+  name: Nucleus Security Vulnerabilities API
+  description: >-
+    Enriched CVE records from the Nucleus Security public vulnerability intelligence dataset.
+  humanURL: https://nucleussec.com/
+  baseURL: https://nucleussec.com/wp-json/nucleussec/v1
+  tags:
+  - Vulnerabilities
+  properties:
+  - type: OpenAPI
+    url: openapi/nucleus-security-vulnerabilities-api-openapi.yml
+  - type: DataModel
+    url: data-model/nucleus-security-data-model.yml
+  - type: ErrorCatalog
+    url: errors/nucleus-security-problem-types.yml
 common:
 - type: Website
   url: https://nucleussec.com/
