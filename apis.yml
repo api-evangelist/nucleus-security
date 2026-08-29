@@ -16,6 +16,18 @@ description: >-
   unauthenticated vulnerability intelligence API on its corporate domain, and a
   FedRAMP Moderate government offering, NucleusGov.
 url: https://raw.githubusercontent.com/api-evangelist/nucleus-security/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://nucleussec.com/wp-content/uploads/2024/12/cropped-Nucleus-Full-Color-Logo-270x270.png
 x-type: company
 x-source: harvest:secondary-market
