@@ -85,6 +85,10 @@ apis:
   baseURL: https://[your-nucleus-instance].nucleussec.com/nucleus/mcp
   tags:
   - MCP
+  - Artificial Intelligence
+  - Agents
+  tags_raw:
+  - MCP
   - AI
   - Agents
   properties:
