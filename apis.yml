@@ -114,21 +114,20 @@ apis:
     url: mcp/nucleus-security-tool-crosswalk.yml
   - type: Documentation
     url: https://help.nucleussec.com/docs/nucleus-mcp-server
-- aid: nucleus-security:nucleus-security-vulnerabilities-api
-  name: Nucleus Security Vulnerabilities API
-  description: >-
-    Enriched CVE records from the Nucleus Security public vulnerability intelligence dataset.
-  humanURL: https://nucleussec.com/
-  baseURL: https://nucleussec.com/wp-json/nucleussec/v1
+- aid: nucleus-security:nucleussec-com-website-wordpress-rest
+  name: Nucleus Security Website (WordPress REST)
+  description: 'The public WordPress REST API (wp-json) of the Nucleus Security website at nucleussec.com:
+    the route index of the site''s content management system, catalogued as one site surface rather than
+    as separate APIs.'
+  baseURL: https://nucleussec.com/wp-json
   tags:
-  - Vulnerabilities
+  - WordPress
+  x-surface: platform-generated
   properties:
-  - type: OpenAPI
-    url: openapi/nucleus-security-vulnerabilities-api-openapi.yml
-  - type: DataModel
-    url: data-model/nucleus-security-data-model.yml
-  - type: ErrorCatalog
-    url: errors/nucleus-security-problem-types.yml
+  - type: Documentation
+    url: https://nucleussec.com/wp-json
+  x-platform: wordpress
+  x-platform-surface: rest
 common:
 - type: Website
   url: https://nucleussec.com/
@@ -194,8 +193,6 @@ common:
   url: llms/nucleus-security-llms.txt
 - type: AgentSkill
   url: skills/_index.yml
-- type: Overlay
-  url: overlays/nucleus-security-vulnerability-intelligence-overlay.yaml
 
 x-enrichment:
   date: '2026-08-26'
