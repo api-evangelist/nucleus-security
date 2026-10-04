@@ -1,31 +1,29 @@
-# Kin Score artifact — nucleus-security — 2026-08-27T132314
+# Kin Score artifact — nucleus-security — 2026-09-22T213221
 # The API Evangelist rating (https://github.com/api-evangelist/kin-score). Generated; do not edit.
 ---
 kin_score:
   slug: nucleus-security
-  schema_version: 0.15.1
-  scored_at: '2026-08-27'
-  run_ts: 2026-08-27T132314
-  composite: 39.3
+  schema_version: 0.22.0
+  scored_at: '2026-09-22'
+  run_ts: 2026-09-22T213221
+  composite: 45.1
   band: developing
   facets:
-    discoverability: 92.6
-    contract_quality: 13.1
-    governance: 30.3
+    discoverability: 75.9
+    contract_quality: 49.0
+    contract_governance: 18.2
     operational_transparency: 28.9
     developer_ergonomics: 49.4
-    commercial_clarity: 47.4
-    contract_governance: 30.3
     access_clarity: 47.4
   agent_readiness:
-    score: 40.0
+    score: 41.7
     band: agent-ready
     band_gated_from: agent-native
     dimensions:
       spec_presence: true
       agentic_access: false
       reversibility_documented: false
-      mcp_server: documented
+      mcp_server: templated
       auth_clarity: served
       idempotency: false
       error_semantics: verified
@@ -45,8 +43,3 @@ kin_score:
     mcp: first-party
     skills: derived
     conformance: first-party
-    contracts:
-      total: 1
-      derived: 1
-      coverage: 100.0
-      callable: 100.0
