@@ -1,0 +1,22 @@
+generated: '2026-10-13'
+method: searched
+checked:
+- https://aws.amazon.com/marketplace/
+marketplace_apps: []
+edges:
+- partner_name: AWS Marketplace
+  partner: amazon-web-services
+  partner_match: aggregator
+  type: marketplace
+  marketplace: aws-marketplace
+  channel: distribution
+  relationship: platform-app
+  direction: provider-built
+  evidence: https://aws.amazon.com/marketplace/seller-profile?id=seller-hujtgo5oz5j5g
+  listing_count: 2
+  apps:
+  - Nucleus Enterprise Vulnerability Management Platform
+  - Nucleus for Government Enterprise Vulnerability Management Platform
+  seller_name: Nucleus Security
+  detected_by: sweep-cloud-marketplaces.py
+  detected: '2026-10-13'
